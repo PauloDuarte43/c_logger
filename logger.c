@@ -29,31 +29,36 @@ char* print_time()
     return buf;
 }
 
-static char * get_log_sysdate(void){
+static char * get_sysdate(const char *formatter){
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
 	char date[64];
 	memset(date, '\0', 64);
-	strftime(date, sizeof(date), "%Y%m%d", tm);
+	strftime(date, sizeof(date), formatter, tm);
 	return strdup(date);
+}
+
+static char * get_log_sysdate(void){
+	return get_sysdate("%Y%m%d");
 }
 
 void log_print(char* filename, int line, char *fmt,...)
 {
     va_list	    list;
-    char	    *p, *r;
+    char	    *p, *r, *date_log;
     int		    e;
 
     char file_name[254];
     memset(file_name, '\0', 254);
     
     //NomeDaMáquina_rastreabilidade_acesso_YYYYMMDD.log
-    const char * log_file_path = "/home/paulo.antunes/workspace/logger/";
+    const char * log_file_path = "/home/pauloduarte/Documentos/c_logger/";
     
     strcpy(file_name, log_file_path);
     strcat(file_name, "NomeDaMaquina_");
     strcat(file_name, "rastreabilidade_acesso_");
-    strcat(file_name, get_log_sysdate());
+    date_log = get_log_sysdate();
+    strcat(file_name, date_log);
     strcat(file_name, ".log");
     
     //if(SESSION_TRACKER > 0)
@@ -102,4 +107,5 @@ void log_print(char* filename, int line, char *fmt,...)
     fputc( '\n', fp );
     SESSION_TRACKER++;
     fclose(fp);
+    free(date_log);
 }
